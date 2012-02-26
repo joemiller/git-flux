@@ -14,6 +14,7 @@ usage() {
     echo "   env      Manage your environment branches."
     echo "   feature  Manage your feature branches."
     echo "   publish  Publish (push) a feature or environment branch."
+    echo "   up       Update local branches from remote."
     echo
     echo "Try 'git puppet <subcommand> help' for details."
 }
