@@ -164,75 +164,17 @@ changes on the remote server.
       TKT-512_adding_cool_stuff   up to date
       some_new-feature            up to date
 
+Support
+-------
 
----------------------------
+TODO
 
-TODO: get rid of these notes
+Contributing
+------------
 
-Implementation Priority
-=======================
-1. git puppet init
-2. git puppet feature [list|new|merge|status] delete?
-3. git puppet environment [list|new]
-4. git puppet publish 
-4. git puppet up 
+TODO
 
-Commands
-=========
+License
+-------
 
-Initialize?
------------
-ex: `git puppet init`
-
-    Environment branch prefix? [environment/]
-    Feature branch prefix? [feature/]
-    
-    
-Fetch all remote branches?  IS THIS ONE NEEDED AT ALL?
----------------------------
-ex: `git puppet prepare`
-
-Pseudo-code:
-
-    git fetch --all     # ???
-
-Start new environment branch.
--------------------------
-ex: `git puppet environment new BRANCH_NAME`
-
-NOTE: probably need some way to create the first branch (production) or .. ?
-    
-Publish environment branch remote ?
-----------------------------
-ex:  `git puppet environment publish BRANCH_NAME`
-
-
-    
-Start new feature branch.
--------------------------
-ex: `git puppet feature new BRANCH_NAME`
-
-pseudo-code:
-
-    git checkout production ; git pull --rebase (??) ; git checkout -b BRANCH_NAME
-    
-Publish feature branch remote ?
-----------------------------
-ex:  `git puppet feature publish BRANCH_NAME`
-
-
-Merge feature into an environment.
----------------------------------
-ex:  `git puppet feature merge [FEATURE_BRANCH] ENV_BRANCH`
-
-pseudo-code:
-
-    git checkout ENV_BRANCH ; git merge FEATURE_BRANCH 
-    
-Show unmerged feature branches ?
--------------------------------
-ex:  `git puppet feature status`
-
-pseudo-code:
-
-    for i in development testing production demo;do git checkout $i && git branch --no-merged|grep OPS;done
+TODO
