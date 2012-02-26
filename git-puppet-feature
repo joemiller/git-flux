@@ -140,9 +140,11 @@ cmd_status() {
     
     # look for feature branches that have not been merged into
     # environment branches yet.
+    echo
     for environment in $environment_branches; do
         environment_short_name=$(echo "$environment" | sed "s@^$ENVIRONMENT_PREFIX@@g")
-        echo "Unmerged feature branches for environment '$environment_short_name':"
+        echo "Feature branches not yet merged into environment '$environment_short_name':"
+        # echo "Unmerged feature branches for environment '$environment_short_name':"
         unmerged=$(git branch --no-merged $environment | sed 's/^[* ] //' | grep "^$FEATURE_PREFIX")
         for branch in $unmerged; do
             short_name=$(echo "$branch" | sed "s@^$FEATURE_PREFIX@@g")
@@ -150,6 +152,9 @@ cmd_status() {
         done
         echo
     done
+    echo "-------------------"
+    echo "To merge a feature branch into an environment branch:"
+    echo "    git puppet feature merge <name> <environment>"
 }
 
 cmd_help() {
