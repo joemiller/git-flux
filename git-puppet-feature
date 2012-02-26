@@ -1,0 +1,158 @@
+gitpuppet_load_settings
+
+usage() {
+    echo "usage: git puppet feature [list]"
+    echo "       git puppet feature new <name>"
+    echo "       git puppet feature merge <name> <environment_branch>"
+    echo "       git puppet feature status"    
+}
+
+cmd_default() {
+    cmd_list "$@"
+}
+
+cmd_list() {
+    local feature_branches
+    local short_names
+    local current_branch
+
+    feature_branches=$(echo "$(git_local_branches)" | grep "^$FEATURE_PREFIX")
+    if [ -z "$feature_branches" ]; then
+        warn "No feature branches exist."
+        warn 
+        warn "You can create a new feature branch:"
+        warn
+        warn "    git puppet feature new <name>"
+        warn
+        exit 0
+    fi
+    short_names=$(echo "$feature_branches" | sed "s@^$FEATURE_PREFIX@@g")
+
+    current_branch=$(git_current_branch)
+    
+	local branch
+	for branch in $short_names; do
+		local fullname="${FEATURE_PREFIX}${branch}"
+		if [ "$fullname" = "$current_branch" ]; then
+			printf "* "
+		else
+			printf "  "
+		fi
+		echo "$branch"
+	done
+}
+
+cmd_new() {
+    local feature_name="$1"; shift
+    
+    if [ -z "$feature_name" ]; then
+        die "Must specify a feature branch name"
+    fi
+    local feature_branch="${FEATURE_PREFIX}${feature_name}"
+
+    require_branch_absent "$feature_branch"
+    
+    if git_branch_exists "origin/$PROD_BRANCH"; then
+        require_branches_equal "$PROD_BRANCH" "origin/$PROD_BRANCH"
+    fi
+    
+    if ! git checkout -b "$feature_branch" "$PROD_BRANCH"; then
+        die "Could not create feature branch '$feature_branch'"
+    fi
+    
+    echo
+    echo "Summary of actions:"
+	echo "- A new feature branch '$feature_name' was created, based on '$PROD_BRANCH'"
+	echo "- You are now on branch '$feature_branch'"
+	echo ""
+	echo "Now, start committing on your feature. When done, use:"
+	echo ""
+	echo "     git puppet feature merge '$feature_name' <environment_branch>"
+	echo 
+	echo "To merge this feature into an environment branch."
+	echo
+}
+
+cmd_merge() {
+    local feature_name="$1"; shift
+    local environment_name="$1"; shift
+    
+    if [ -z "$feature_name" ]; then
+        die "Must specify a feature branch name"
+    fi
+    local feature_branch="${FEATURE_PREFIX}${feature_name}"
+    
+    if [ -z "$environment_name" ]; then
+        die "Must specify an environment branch"
+    fi
+    local environment_branch="${ENVIRONMENT_PREFIX}${environment_name}"
+
+    # sanity checks
+    require_branch "$feature_branch"
+    require_clean_working_tree
+    
+    # update local repo with remote changes first
+    if has "origin/$feature_branch" $(git_remote_branches); then
+		git fetch -q "origin" "$feature_branch"
+		git fetch -q "origin" "$environment_branch"
+	fi
+	
+	if has "origin/$feature_branch" $(git_remote_branches); then
+		require_branches_equal "$feature_branch" "origin/$feature_branch"
+	fi
+	if has "origin/$environment_branch" $(git_remote_branches); then
+		require_branches_equal "$environment_branch" "origin/$environment_branch"
+	fi
+	
+	# merge into environment_branch
+	git checkout "$environment_branch"
+	
+	if [ "$(git rev-list -n2 "$environment_branch..$feature_branch" | wc -l)" -eq 1 ]; then
+		git merge --ff "$feature_branch"
+	else
+		git merge --no-ff "$feature_branch"
+	fi
+
+	if [ $? -ne 0 ]; then
+		warn
+		warn "There were merge conflicts. To resolve the merge conflict manually, use:"
+		warn "    git mergetool"
+		warn "    git commit"
+		warn 
+ 		warn "You can then complete the merge by running this command again."
+		warn
+		exit 1
+	fi
+	
+    echo
+	echo "Summary of actions:"
+	echo "- Feature branch '$feature_name' was merged into environment '$environment_name'"
+	echo "- You may want to push this branch to the remote origin now. 'git push'"
+	echo "- You are now on branch '$environment_branch'"
+	echo
+}
+
+cmd_status() {    
+    # sanity checks
+    require_clean_working_tree
+    
+    local environment_branches=$(git_local_branches | grep "^$ENVIRONMENT_PREFIX")
+    
+    # look for feature branches that have not been merged into
+    # environment branches yet.
+    for environment in $environment_branches; do
+        environment_short_name=$(echo "$environment" | sed "s@^$ENVIRONMENT_PREFIX@@g")
+        echo "Unmerged feature branches for environment '$environment_short_name':"
+        unmerged=$(git branch --no-merged $environment | sed 's/^[* ] //' | grep "^$FEATURE_PREFIX")
+        for branch in $unmerged; do
+            short_name=$(echo "$branch" | sed "s@^$FEATURE_PREFIX@@g")
+            echo "  $short_name"
+        done
+        echo
+    done
+}
+
+cmd_help() {
+    usage
+    exit 0
+}

@@ -1,0 +1,54 @@
+gitpuppet_load_settings
+
+usage() {
+    echo "usage: git puppet publish <name>"
+    echo
+    echo "- <name> may be an environment branch or feature branch."
+}
+
+cmd_default() {
+    cmd_publish "$@"
+}
+
+cmd_publish() {
+    local branch_name="$1"; shift
+    if [ "$branch_name" = "help" ]; then
+        cmd_help
+    fi
+
+    if [ -z "$branch_name" ]; then
+        branch_name=$(git_current_branch)
+    fi
+
+    # try to find a valid branch
+    local env_branch="${ENVIRONMENT_PREFIX}${branch_name}"
+    local feature_branch="${FEATURE_PREFIX}${branch_name}"
+    for branch in "$branch_name" "$feature_branch" "$env_branch" ; do
+        if git_local_branch_exists "$branch"; then
+            branch_name=$branch
+            break
+        fi
+    done
+
+    # sanity checks
+    require_clean_working_tree
+    require_branch "$branch_name"
+    git fetch -q origin
+    
+    # create remote branch
+    git push -u origin "$branch_name:refs/heads/$branch_name"
+    
+    git checkout "$branch_name"
+    
+    echo
+	echo "Summary of actions:"
+	echo "- Pushed local branch '$branch_name' to remote origin server."
+	echo "- The local branch '$branch_name' was configured to track the remote branch"
+	echo "- You are now on branch '$branch_name'"
+	echo
+}
+
+cmd_help() {
+    usage
+    exit 0
+}

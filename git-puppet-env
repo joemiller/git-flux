@@ -1,0 +1,72 @@
+gitpuppet_load_settings
+
+usage() {
+    echo "usage: git puppet env [list]"
+    echo "       git puppet env new <name>"
+}
+
+cmd_default() {
+    cmd_list "$@"
+}
+
+cmd_list() {
+    local environment_branches
+    local short_names
+    local current_branch
+
+    environment_branches=$(echo "$(git_local_branches)" | grep "^$ENVIRONMENT_PREFIX")
+    if [ -z "$environment_branches" ]; then
+        warn "No environment branches exist."
+        warn 
+        warn "You can create a new environment branch:"
+        warn
+        warn "    git puppet env new <name>"
+        warn
+        exit 0
+    fi
+    short_names=$(echo "$environment_branches" | sed "s@^$ENVIRONMENT_PREFIX@@g")
+
+    current_branch=$(git_current_branch)
+
+	local branch
+	for branch in $short_names; do
+		local fullname="${ENVIRONMENT_PREFIX}${branch}"
+		if [ "$fullname" = "$current_branch" ]; then
+			printf "* "
+		else
+			printf "  "
+		fi
+		echo "$branch"
+	done
+}
+
+cmd_new() {
+    local environment_name="$1"; shift
+    
+    if [ -z "$environment_name" ]; then
+        die "Must specify an environment branch name"
+    fi
+    local environment_branch="${ENVIRONMENT_PREFIX}${environment_name}"
+
+    require_branch_absent "$environment_branch"
+    
+    if git_branch_exists "origin/$PROD_BRANCH"; then
+        require_branches_equal "$PROD_BRANCH" "origin/$PROD_BRANCH"
+    fi
+    
+    if ! git checkout -b "$environment_branch" "$PROD_BRANCH"; then
+        die "Could not create environment branch '$environment_branch'"
+    fi
+
+    echo
+    echo "Summary of actions:"
+	echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
+	echo "- The branch was pushed to the remote origin server."
+	echo "- You are now on branch '$environment_branch'."
+	echo
+}
+
+cmd_help() {
+    usage
+    exit 0
+}
