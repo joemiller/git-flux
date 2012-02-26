@@ -4,7 +4,7 @@ usage() {
 
 cmd_default() {
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
-        die "This is not a valid git repository. git-puppet only works on pre-existing git repos"
+        die "This is not a valid git repository."
     fi
     
     # is git-puppet already initialized? if so, warn user, require -f flag

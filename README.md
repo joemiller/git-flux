@@ -1,12 +1,48 @@
 git-puppet - A git branching model for puppet workflows
 =======================================================
 
-
 Overview
 ---------
 
-Why? What? How?
-TODO. types of branches: feature, environment
+_What?_ git-puppet is a set of custom git commands based heavily on git-flow
+but tailored to managing the workflow of a configuration
+management system such as Puppet or Chef.
+
+It is intended to be used in a setup similar to that described
+in (TODO,url to puppetlabs) where multiple, permanent, branches
+are aligned to different environments. For example, you may
+have a puppet.git repository with 'development', 'testing',
+and 'production' branches corresponding to environments
+in your infrastructure. This tool helps you safely control the
+movement of changes through each environment as testing or
+sign-off is completed.
+
+_Why not use git-flow?_ Originally we wanted to but as we started
+discussing what the workflow would look like we realized it was
+not a good fit for this particular problem. For example, consider a 
+scenario with two people making changes to puppet. Both changes
+could be completely independent of each other and the intention
+is for both to move through the environments (dev -> test -> prod)
+at their own pace. Using git-flow, person A would create a feature
+branch based on develop, make their changes and push back to
+the develop branch. Person B would then branch from develop and
+work on his changes. This branch would contain Person A's changes too.
+If Person B's change is ready to move to the test environment first,
+then he will bring along Person A's change even though that change
+is not ready to be promoted to the test environment (or prod!)
+
+Thus, at the heart of this workflow, we always create feature
+branches from the production branch because any code on the production
+branch is assumed to have passed through all other environments and should
+not have any work in progress on it.
+
+Also, this tool tries to keep the types of branches to a minimum. There
+are currently only two branch 'types': feature and environment. Feature
+branches are short-lived branches that are created for making changes to
+the codebase. Environment branches are long-lived branches that correspond
+to a live deployment. Feature branches are merged into environment branches.
+
+See the `Typical Workflow` section below for more details.
 
 Installation
 ------------
@@ -113,6 +149,7 @@ testing or production.
 
 ---------------------------
 
+TODO: get rid of these notes
 
 Implementation Priority
 =======================
@@ -120,7 +157,7 @@ Implementation Priority
 2. git puppet feature [list|new|merge|status] delete?
 3. git puppet environment [list|new]
 4. git puppet publish 
-4. git puppet up
+4. git puppet up # TODO
 
 Commands
 =========
