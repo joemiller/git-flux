@@ -7,7 +7,7 @@ WHEREAMI=$(dirname $0)
 
 EXEC_FILES="git-puppet"
 SRC_FILES="git-puppet-feature git-puppet-publish \
-git-puppet-env git-puppet-init gitpuppet-common"
+git-puppet-env git-puppet-init gitpuppet-common git-puppet-up"
 
 case "$1" in
 	install)

@@ -36,9 +36,9 @@ cmd_publish() {
     git fetch -q origin
     
     # create remote branch
-    git push -u origin "$branch_name:refs/heads/$branch_name"
+    git push -q -u origin "$branch_name:refs/heads/$branch_name"
     
-    git checkout "$branch_name"
+    git checkout -q "$branch_name"
     
     echo
 	echo "Summary of actions:"
