@@ -1,4 +1,5 @@
 #!/bin/sh
+# TODO: license and descriptions in each src file
 
 # see SPEC.md and README.md for more info
 
@@ -13,7 +14,7 @@ usage() {
     echo "   init     Initialize a new git repo with support for git-puppet branching model."
     echo "   env      Manage your environment branches."
     echo "   feature  Manage your feature branches."
-    echo "   publish  Publish (push) a feature or environment branch."
+    echo "   publish  Publish (push) a feature or environment branch to remote."
     echo "   up       Update local branches from remote."
     echo
     echo "Try 'git puppet <subcommand> help' for details."
@@ -36,7 +37,7 @@ main() {
     . "$git_puppet_dir/git-puppet-$command"
     
     # special case for git-puppet-publish: always call cmd_default
-    # i am a little embarrassed by this ugliness :(
+    # i am a little embarrassed by the ugliness :(
     
     case $command in
         "publish")
