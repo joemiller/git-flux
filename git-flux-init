@@ -1,3 +1,39 @@
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
 usage() {
     echo "usage: git flux init"
 }
@@ -6,6 +42,12 @@ cmd_default() {
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
         die "This is not a valid git repository."
     fi
+    
+    # TODO: new model:
+    #  static feature and environment branch prefixes. stored in gitflux-common
+    #  init - 1) check for remote environment/production branch, if exists, use it
+    #         2) check for local environment/production branch, if exists, use it and push to remote
+    #         3) ask for local branch to use as production? clone it and push to remote
     
     # is git-flux already initialized? if so, warn user, require -f flag
     if gitflux_is_initialized; then
@@ -50,6 +92,7 @@ cmd_default() {
         die "I could not find a local or remote 'master' branch. Create one then re-run 'git flux init'."
     fi
     
+    # TODO: only need to push if no remote prod branch existed?
     echo "Pushing '$prod_branch' to remote 'origin'"
     git push origin "$prod_branch"
     if [ $? -gt 0 ]; then

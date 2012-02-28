@@ -47,10 +47,49 @@ Installation
 
 TODO
 
-Usage
------
+Typical workflow
+----------------
 
-### Preparing a repo
+After a repo has been prepared by running `git flux init` and your
+environment branches have been created and published to the remote,
+the typical workflow for changes might look like this:
+
+1. Create a feature branch based on the `production` environment branch.
+   `git flux feature new Feature_name`
+2. Make edits, commit, push.
+3. Merge the feature branch into the `development` environment branch.
+4. Test the changes, repeat steps 2 and 3 if necessary.
+5. Merge the feature branch into the `testing` environment branch.
+6. Do moar testing.
+7. Merge the feature branch into the `production` environment branch.
+8. Done.
+
+### Create a new feature branch. 
+
+    $ git flux feature new TKT-512_adding_cool_stuff
+    <edit files, `git commit`, then..>
+    $ git flux publish TKT-512_adding_cool_stuff
+
+It is not required to publish feature branches but it can be very
+useful for the rest of the team to be able to see your work in
+progress, or they can finish merging it into environment branches if 
+you get hit by a bus.
+ 
+### Merge a feature branch into an environment branch:
+
+    $ git flux feature merge TKT-512_adding_cool_stuff development
+
+### Publish/push updated environment branch to remote server:
+
+After merging a feature branch into an environment branch, the next step will
+be to push your changes to the remote server (if you're ready):
+
+    $ git flux publish development
+
+Other Commands
+--------------
+
+### Preparing a repo (one-time task) - git flux init
 
 git-flux assumes the following:
 
@@ -84,45 +123,6 @@ commit is push'd.
     $ git flux env new testing
     $ git flux publish development
     $ git flux publish testing
-
-### Typical workflow
-
-This is the most common task you will perform since it is the mechanism you
-will use to make changes to your config management and then push them to your 
-various environments.
-
-A typical change workflow might look like this:
-
-1. Create a feature branch based on the `production` environment branch.
-2. Make edits, commit, push.
-3. Merge the feature branch into the `development` environment branch.
-4. Test the changes, repeat steps 2 and 3 if necessary.
-5. Merge the feature branch into the `testing` environment branch.
-6. Do moar testing.
-7. Merge the feature branch into the `production` environment branch.
-8. Done.
-
-#### Create a new feature branch. 
-
-    $ git flux feature new TKT-512_adding_cool_stuff
-    <edit files, `git commit`, then..>
-    $ git flux publish TKT-512_adding_cool_stuff
-
-It is not required to publish feature branches but it can be very
-useful for the rest of the team to be able to see your work in
-progress, or they can finish merging it into environment branches if 
-you get hit by a bus.
- 
-#### Merge a feature branch into an environment branch:
-
-    $ git flux feature merge TKT-512_adding_cool_stuff development
-
-#### Publish/push updated environment branch to remote server:
-
-After merging a feature branch into an environment branch, the next step will
-be to push your changes to the remote server (if you're ready):
-
-    $ git flux publish development
 
 ### List feature branches waiting to be merged into environment branches
 
@@ -190,7 +190,33 @@ TODO
 License
 -------
 
-Portions of this code are borrowed from [git-flow](https://github.com/nvie/gitflow).
-See `gitflux-common` for the git-flow license.
+Portions of this code are taken from [git-flow](https://github.com/nvie/gitflow).
+`git-flow` is Copyright Vincent Driessen. 
+See `gitflux-common` for the git-flow license. 
 
-TODO
+Copyright 2012 Joe Miller. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+ 
+    1. Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimer.
+ 
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+The views and conclusions contained in the software and documentation are
+those of the authors and should not be interpreted as representing official
+policies, either expressed or implied, of Joe Miller.
