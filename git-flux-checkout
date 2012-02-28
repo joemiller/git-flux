@@ -1,30 +1,30 @@
 gitflux_load_settings
 
 usage() {
-    echo "usage: git flux publish <name>"
+    echo "usage: git flux checkout <name>"
     echo
     echo "- <name> may be an environment branch or feature branch without the prefix."
     echo
 }
 
 cmd_default() {
-    cmd_publish "$@"
+    cmd_checkout "$@"
 }
 
-cmd_publish() {
+cmd_checkout() {
     local branch_name="$1"; shift
     if [ "$branch_name" = "help" ]; then
         cmd_help
     fi
 
     if [ -z "$branch_name" ]; then
-        branch_name=$(git_current_branch)
+        die "No branch name specified. Run 'git flux checkout help' for help"
     fi
-
+    
     # try to find a valid branch
     local env_branch="${ENVIRONMENT_PREFIX}${branch_name}"
     local feature_branch="${FEATURE_PREFIX}${branch_name}"
-    for branch in "$branch_name" "$feature_branch" "$env_branch" ; do
+    for branch in "$feature_branch" "$env_branch" ; do
         if git_local_branch_exists "$branch"; then
             branch_name=$branch
             break
@@ -34,19 +34,8 @@ cmd_publish() {
     # sanity checks
     require_clean_working_tree
     require_branch "$branch_name"
-    git fetch -q origin
-    
-    # create remote branch
-    git push -q -u origin "$branch_name:refs/heads/$branch_name"
-    
-    git checkout -q "$branch_name"
-    
-    echo
-	echo "Summary of actions:"
-	echo "- Pushed local branch '$branch_name' to remote origin server."
-	echo "- The local branch '$branch_name' was configured to track the remote branch"
-	echo "- You are now on branch '$branch_name'"
-	echo
+        
+    git checkout "$branch_name"
 }
 
 cmd_help() {

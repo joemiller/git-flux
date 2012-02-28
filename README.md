@@ -124,10 +124,6 @@ be to push your changes to the remote server (if you're ready):
 
     $ git flux publish development
 
-### List feature branches
-
-TODO.. might also include some merge statuses here
-
 ### List feature branches waiting to be merged into environment branches
 
 It is possible to get a list of feature branches that have not yet been
@@ -146,6 +142,23 @@ merged into environment branches. This feature is still experimental.
 In the above example, our feature branch has been merged into the 
 development environment but has not yet been merged into
 testing or production.
+
+### List branches
+
+List feature branches by using the `feature` command with no arguments or with
+the `list` argument
+
+    $ git flux feature
+      TKT-512_adding_cool_stuff
+    * some_new-feature
+
+List environment branches by using the `env` command with no arguments
+or with the `list` argument:
+
+    $ git flux env
+      development
+    * production
+      testing
 
 ### Update all local branches from remote (git-up style)
 

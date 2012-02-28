@@ -5,7 +5,7 @@ INSTALL_PATH=${INSTALL_PATH:="/usr/local/bin"}
 WHEREAMI=$(dirname $0)
 
 EXEC_FILES="git-flux"
-SRC_FILES="git-flux-env git-flux-feature \
+SRC_FILES="git-flux-checkout git-flux-env git-flux-feature \
 git-flux-init git-flux-publish git-flux-up gitflux-common"
 
 case "$1" in
