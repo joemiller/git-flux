@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# TODO: pick a better name?
-NAME="git-puppet"
+NAME="git-flux"
 INSTALL_PATH=${INSTALL_PATH:="/usr/local/bin"}
 WHEREAMI=$(dirname $0)
 
-EXEC_FILES="git-puppet"
-SRC_FILES="git-puppet-env git-puppet-feature \
-git-puppet-init git-puppet-publish git-puppet-up gitpuppet-common"
+EXEC_FILES="git-flux"
+SRC_FILES="git-flux-env git-flux-feature \
+git-flux-init git-flux-publish git-flux-up gitflux-common"
 
 case "$1" in
 	install)

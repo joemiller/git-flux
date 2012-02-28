@@ -1,7 +1,7 @@
-gitpuppet_load_settings
+gitflux_load_settings
 
 usage() {
-    echo "usage: git puppet up"
+    echo "usage: git flux up"
 }
 
 cmd_default() {

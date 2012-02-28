@@ -1,10 +1,10 @@
-gitpuppet_load_settings
+gitflux_load_settings
 
 usage() {
-    echo "usage: git puppet feature [list]"
-    echo "       git puppet feature new <name>"
-    echo "       git puppet feature merge <name> <environment_branch>"
-    echo "       git puppet feature status"    
+    echo "usage: git flux feature [list]"
+    echo "       git flux feature new <name>"
+    echo "       git flux feature merge <name> <environment_branch>"
+    echo "       git flux feature status"    
 }
 
 cmd_default() {
@@ -22,7 +22,7 @@ cmd_list() {
         warn 
         warn "You can create a new feature branch:"
         warn
-        warn "    git puppet feature new <name>"
+        warn "    git flux feature new <name>"
         warn
         exit 0
     fi
@@ -67,7 +67,7 @@ cmd_new() {
 	echo ""
 	echo "Now, start committing on your feature. When done, use:"
 	echo ""
-	echo "     git puppet feature merge '$feature_name' <environment_branch>"
+	echo "     git flux feature merge '$feature_name' <environment_branch>"
 	echo 
 	echo "To merge this feature into an environment branch."
 	echo
@@ -154,7 +154,7 @@ cmd_status() {
     done
     echo "-------------------"
     echo "To merge a feature branch into an environment branch:"
-    echo "    git puppet feature merge <name> <environment>"
+    echo "    git flux feature merge <name> <environment>"
 }
 
 cmd_help() {

@@ -1,8 +1,8 @@
-gitpuppet_load_settings
+gitflux_load_settings
 
 usage() {
-    echo "usage: git puppet env [list]"
-    echo "       git puppet env new <name>"
+    echo "usage: git flux env [list]"
+    echo "       git flux env new <name>"
 }
 
 cmd_default() {
@@ -20,7 +20,7 @@ cmd_list() {
         warn 
         warn "You can create a new environment branch:"
         warn
-        warn "    git puppet env new <name>"
+        warn "    git flux env new <name>"
         warn
         exit 0
     fi

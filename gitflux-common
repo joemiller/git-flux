@@ -1,23 +1,23 @@
-## git-puppet common functionality ##
+## git-flux common functionality ##
 
-gitpuppet_is_initialized() {
-    gitpuppet_has_production_branch_configured && \
-    gitpuppet_has_prefixes_configured
+gitflux_is_initialized() {
+    gitflux_has_production_branch_configured && \
+    gitflux_has_prefixes_configured
 }
 
-gitpuppet_has_production_branch_configured() {
-    local prefix=$(git config --get gitpuppet.prefix.environment)
+gitflux_has_production_branch_configured() {
+    local prefix=$(git config --get gitflux.prefix.environment)
     git_local_branch_exists "${prefix}production"
 }
 
-gitpuppet_has_prefixes_configured() {
-    git config --get gitpuppet.prefix.environment >/dev/null 2>&1   && \
-    git config --get gitpuppet.prefix.feature >/dev/null 2>&1
+gitflux_has_prefixes_configured() {
+    git config --get gitflux.prefix.environment >/dev/null 2>&1   && \
+    git config --get gitflux.prefix.feature >/dev/null 2>&1
 }
 
-gitpuppet_load_settings() {
-	export FEATURE_PREFIX=$(git config --get gitpuppet.prefix.feature)
-	export ENVIRONMENT_PREFIX=$(git config --get gitpuppet.prefix.environment)
+gitflux_load_settings() {
+	export FEATURE_PREFIX=$(git config --get gitflux.prefix.feature)
+	export ENVIRONMENT_PREFIX=$(git config --get gitflux.prefix.environment)
 	export PROD_BRANCH="${ENVIRONMENT_PREFIX}production"
 }
 

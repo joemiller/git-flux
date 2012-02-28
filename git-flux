@@ -8,35 +8,35 @@ if [ "$DEBUG" = "yes" ]; then
 fi
 
 usage() {
-    echo "usage: git puppet <subcommand> [options]"
+    echo "usage: git flux <subcommand> [options]"
     echo
     echo "Available subcommands:"
-    echo "   init     Initialize a new git repo with support for git-puppet branching model."
+    echo "   init     Initialize a new git repo with support for git-flux branching model."
     echo "   env      Manage your environment branches."
     echo "   feature  Manage your feature branches."
     echo "   publish  Publish (push) a feature or environment branch to remote."
     echo "   up       Update local branches from remote."
     echo
-    echo "Try 'git puppet <subcommand> help' for details."
+    echo "Try 'git flux <subcommand> help' for details."
 }
 
 main() {
-    git_puppet_dir=$(dirname $0)
+    git_flux_dir=$(dirname $0)
     
     # load common helpers
-    . "$git_puppet_dir/gitpuppet-common"
+    . "$git_flux_dir/gitflux-common"
     
     command="$1"; shift
 
-    if [ ! -e "$git_puppet_dir/git-puppet-$command" ]; then
+    if [ ! -e "$git_flux_dir/git-flux-$command" ]; then
 		usage
 		exit 1
 	fi
     
     # load command and run it
-    . "$git_puppet_dir/git-puppet-$command"
+    . "$git_flux_dir/git-flux-$command"
     
-    # special case for git-puppet-publish: always call cmd_default
+    # special case for git-flux-publish: always call cmd_default
     # i am a little embarrassed by the ugliness :(
     
     case $command in

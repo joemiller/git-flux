@@ -1,7 +1,7 @@
-gitpuppet_load_settings
+gitflux_load_settings
 
 usage() {
-    echo "usage: git puppet publish <name>"
+    echo "usage: git flux publish <name>"
     echo
     echo "- <name> may be an environment branch or feature branch."
 }

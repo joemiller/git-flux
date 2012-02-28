@@ -1,5 +1,5 @@
 usage() {
-    echo "usage: git puppet init"
+    echo "usage: git flux init"
 }
 
 cmd_default() {
@@ -7,34 +7,34 @@ cmd_default() {
         die "This is not a valid git repository."
     fi
     
-    # is git-puppet already initialized? if so, warn user, require -f flag
-    if gitpuppet_is_initialized; then
-        warn "Already initialized for git-puppet. Re-initializing should be safe,"
+    # is git-flux already initialized? if so, warn user, require -f flag
+    if gitflux_is_initialized; then
+        warn "Already initialized for git-flux. Re-initializing should be safe,"
         warn "but if you want to cancel, hit Ctrl-C now."
         warn
     fi
     echo
     
     # ask for prefix for environment branches
-    default_suggestion=$(git config --get gitpuppet.prefix.environment || echo "environment/")
+    default_suggestion=$(git config --get gitflux.prefix.environment || echo "environment/")
     printf "Prefix for environment branches? [$default_suggestion] "
     read answer
     [ "$answer" = "-" ] && prefix= || prefix=${answer:-$default_suggestion}
-    git config gitpuppet.prefix.environment "$prefix"
+    git config gitflux.prefix.environment "$prefix"
 
     # ask for prefix for feature branches
-    default_suggestion=$(git config --get gitpuppet.prefix.feature || echo "feature/")
+    default_suggestion=$(git config --get gitflux.prefix.feature || echo "feature/")
     printf "Prefix for feature branches? [$default_suggestion] "
     read answer
     [ "$answer" = "-" ] && prefix= || prefix=${answer:-$default_suggestion}
-    git config gitpuppet.prefix.feature "$prefix"
+    git config gitflux.prefix.feature "$prefix"
 
     # Setup the '$environment_prefix/production' branch.
     #   1) If a local branch '$environment_prefix/production' exists, use it
     #   2) If a remote branch '$environment_prefix/production' exists, create it locally and use it
     #   3) If no local or remote branch '$environment_prefix/production' exists, create one
     #      based off of the 'master' branch
-    local environment_prefix=$(git config gitpuppet.prefix.environment)
+    local environment_prefix=$(git config gitflux.prefix.environment)
     local prod_branch="${environment_prefix}production"
     
     echo
@@ -47,13 +47,13 @@ cmd_default() {
         echo "Creating new branch '$prod_branch' based on local 'master' branch."
         git branch "$prod_branch" master
     else
-        die "I could not find a local or remote 'master' branch. Create one then re-run 'git puppet init'."
+        die "I could not find a local or remote 'master' branch. Create one then re-run 'git flux init'."
     fi
     
     echo "Pushing '$prod_branch' to remote 'origin'"
     git push origin "$prod_branch"
     if [ $? -gt 0 ]; then
-        die "git-puppet requires a remote repository named 'origin' to be configured."
+        die "git-flux requires a remote repository named 'origin' to be configured."
     fi
 }
 

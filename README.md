@@ -1,33 +1,33 @@
-git-puppet - A git branching model for puppet workflows
-=======================================================
+git-flux - A git branching model for Infrastructure as code workflows
+=======================================================================
 
 Overview
 ---------
 
-_What?_ git-puppet is a set of custom git commands based heavily on git-flow
-but tailored to managing the workflow of a configuration management system 
-such as Puppet or Chef.
+_What?_ git-flux is a set of custom git commands based heavily on 
+[git-flow](https://github.com/nvie/gitflow) but tailored to managing the 
+workflow of a configuration management system such as Puppet or Chef.
 
-It is intended to be used in a setup similar to that described
+It is intended to be used in conjunction with a setup similar to that described
 in [this blog article from puppetlabs](http://puppetlabs.com/blog/git-workflow-and-puppet-environments/)
 where multiple, permanent, branches are aligned to different environments. 
 For example, you may have a puppet.git repository with 'development', 
-'testing', and 'production' branches corresponding to environments in your 
-infrastructure. This tool helps you safely control the movement of changes 
-through each environment as testing or sign-off is completed.
+'testing', and 'production' branches corresponding to these environments in 
+your  infrastructure. This tool helps you safely control the movement of
+changes through each environment as testing or sign-off is completed.
 
 _Why not use git-flow?_ Originally we wanted to but as we started discussing
 what the workflow would look like we realized it was not a good fit for this
 particular problem. For example, consider a scenario with two people making
-changes to puppet. Both changes could be completely independent of each other
-and the intention is for both to move through the environments (dev -> test ->
-prod) at their own pace. Using git-flow, person A would create a feature branch
-based on develop, make their changes and push back to the develop branch.
-Person B would then branch from develop and work on his changes. This branch
-would contain Person A's changes too. If Person B's change is ready to move to
-the test environment first, then he will bring along Person A's change even
-though that change is not ready to be promoted to the test environment (or
-prod!)
+changes to Puppet modules. Both changes could be completely independent of each
+other and the intention is for both to move through the environments (dev ->
+test -> prod) at their own pace. Using git-flow, person A would create a
+feature branch based on develop, make their changes and push back to the
+develop branch.  Person B would then branch from develop and work on his
+changes. This branch would contain Person A's changes too. If Person B's change
+is ready to move to the test environment first, then he will bring along Person
+A's change even though that change is not ready to be promoted to the test
+environment (or prod!)
 
 This leads to the first rule of this workflow: we always create feature 
 branches from the production branch because any code on the production branch 
@@ -52,7 +52,7 @@ Usage
 
 ### Preparing a repo
 
-git-puppet assumes the following:
+git-flux assumes the following:
 
 1. You have already created a git repo.
 2. The repo is stored on a remote server somewhere and that remote is
@@ -60,12 +60,12 @@ git-puppet assumes the following:
 3. There is a local or remote 'master' branch which will be used to create
    the 'production' environment branch.
 
-Once these conditions are met, you can configure the repo to use git-puppet.
+Once these conditions are met, you can configure the repo to use git-flux.
 It will ask a couple questions and create an environment branch named
 `production` based off of the local `master` branch. All 'feature' and
 'environment' branches that are created will be based on this `production`.
 
-    $ git puppet init
+    $ git flux init
     
     Prefix for environment branches? [environment/] 
     Prefix for feature branches? [feature/]
@@ -76,19 +76,19 @@ It will ask a couple questions and create an environment branch named
 
 The next thing you will want to do is create 'environment' branches that will 
 be used by each of your environments. These are long-living branches and are 
-typicallysetup on your puppet-master to be automatically updated whenever a 
+typically setup on your puppet-master to be automatically updated whenever a 
 commit is push'd.
 (TODO.. link to more info on setting this part up on a puppet-master)
 
-    $ git puppet env new development
-    $ git puppet env new testing
-    $ git puppet publish development
-    $ git puppet publish testing
+    $ git flux env new development
+    $ git flux env new testing
+    $ git flux publish development
+    $ git flux publish testing
 
 ### Typical workflow
 
 This is the most common task you will perform since it is the mechanism you
-will use to make changes to your puppet modules and then push them to your 
+will use to make changes to your config management and then push them to your 
 various environments.
 
 A typical change workflow might look like this:
@@ -104,9 +104,9 @@ A typical change workflow might look like this:
 
 #### Create a new feature branch. 
 
-    $ git puppet feature new TKT-512_adding_cool_stuff
+    $ git flux feature new TKT-512_adding_cool_stuff
     <edit files, `git commit`, then..>
-    $ git puppet publish TKT-512_adding_cool_stuff
+    $ git flux publish TKT-512_adding_cool_stuff
 
 It is not required to publish feature branches but it can be very
 useful for the rest of the team to be able to see your work in
@@ -115,14 +115,14 @@ you get hit by a bus.
  
 #### Merge a feature branch into an environment branch:
 
-    $ git puppet feature merge TKT-512_adding_cool_stuff development
+    $ git flux feature merge TKT-512_adding_cool_stuff development
 
 #### Publish/push updated environment branch to remote server:
 
 After merging a feature branch into an environment branch, the next step will
 be to push your changes to the remote server (if you're ready):
 
-    $ git puppet publish development
+    $ git flux publish development
 
 ### List feature branches
 
@@ -133,7 +133,7 @@ TODO.. might also include some merge statuses here
 It is possible to get a list of feature branches that have not yet been
 merged into environment branches. This feature is still experimental.
 
-    $ git puppet feature status
+    $ git flux feature status
     
     Unmerged feature branches for environment 'development':
 
@@ -149,11 +149,11 @@ testing or production.
 
 ### Update all local branches from remote (git-up style)
 
-git-puppet has a tool that is very similar to [git-up](https://github.com/aanand/git-up),
+git-flux has a tool that is very similar to [git-up](https://github.com/aanand/git-up),
 that provides a convenient way to update your local branches with any
 changes on the remote server.
 
-    $ git puppet up
+    $ git flux up
 
     Updating Environment branches:
       production   up to date
@@ -176,5 +176,8 @@ TODO
 
 License
 -------
+
+Portions of this code are borrowed from [git-flow](https://github.com/nvie/gitflow).
+See `gitflux-common` for the git-flow license.
 
 TODO
