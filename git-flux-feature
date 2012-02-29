@@ -40,7 +40,10 @@ usage() {
     echo "usage: git flux feature [list]"
     echo "       git flux feature new <name>"
     echo "       git flux feature merge <name> <environment_branch>"
-    echo "       git flux feature status"    
+    echo "       git flux feature status"
+    echo
+    echo "New feature branches are always based off of the 'environment/production' branch."
+    echo
 }
 
 cmd_default() {

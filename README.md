@@ -47,15 +47,78 @@ Installation
 
 TODO
 
+Getting started
+---------------
+
+### Preparing a repo (one-time task)
+
+Prepare a repository for git flux by running `git flux init` which will 
+create the all important environment branch production. This branch is
+used to create all other environment and feature branches. It only needs
+to be run once.
+
+If this is an existing git repo, the master branch will be cloned to create
+the production branch. If it's a new repo, a branch will be created.
+
+    $ git flux init
+
+    Summary of actions:
+        - Created environment branch: 'environment/production'
+        - You are now on branch 'environment/production'
+
+    Next steps:
+        - Create more environment branches with 'git flux env new <environment_name>
+        - Setup a remote repository named 'origin'.
+        - Publish your environment branches to remote with 'git flux publish <environment_name>'
+
+### Create other environment branches
+
+Next, create additional environment branches. All environment branches are
+based off of the production environment branch.
+
+    $ git flux env new development
+    Switched to a new branch 'environment/testing'
+
+    Summary of actions:
+    - A new environment branch 'testing' was created, based on 'environment/production'.
+    - You are now on branch 'environment/testing'.
+
+### Publish environment branches to remote server
+
+To publish environment branches to remote 'origin' server:
+
+    $ git flux publish development
+
+Update local branches
+---------------------
+
+git-flux has a command that is very similar to [git-up](https://github.com/aanand/git-up)
+which provides a convenient way to update all local branches with any
+changes on the remote server.
+
+Unlike `git-up`, a local tracking branch does not need to exist first. Thus,
+`git flux up` is a great way to pull down all remote feature and environment
+branches after the first `git clone` from remote.
+
+    $ git flux up
+
+    Updating Feature branches:
+      TKT-512_adding_cool_stuff   up to date
+      some_new-feature            up to date
+
+    Updating Environment branches:
+      production   up to date
+    * development  up to date
+      testing      up to date
+
 Typical workflow
 ----------------
 
 After a repo has been prepared by running `git flux init` and your
-environment branches have been created and published to the remote,
-the typical workflow for changes might look like this:
+environment branches have been created and published, the typical workflow
+for changes might look like this:
 
 1. Create a feature branch based on the `production` environment branch.
-   `git flux feature new Feature_name`
 2. Make edits, commit, push.
 3. Merge the feature branch into the `development` environment branch.
 4. Test the changes, repeat steps 2 and 3 if necessary.
@@ -86,43 +149,13 @@ be to push your changes to the remote server (if you're ready):
 
     $ git flux publish development
 
-Other Commands
+After testing is completed in the development environment, the feature branch
+can be merged to other environment branches. Use the `git flux feature status`
+command to see which feature branches are awaiting merging into environment
+branches.
+
+Other commands
 --------------
-
-### Preparing a repo (one-time task) - git flux init
-
-git-flux assumes the following:
-
-1. You have already created a git repo.
-2. The repo is stored on a remote server somewhere and that remote is
-   named 'origin'.
-3. There is a local or remote 'master' branch which will be used to create
-   the 'production' environment branch.
-
-Once these conditions are met, you can configure the repo to use git-flux.
-It will ask a couple questions and create an environment branch named
-`production` based off of the local `master` branch. All 'feature' and
-'environment' branches that are created will be based on this `production`.
-
-    $ git flux init
-    
-    Prefix for environment branches? [environment/] 
-    Prefix for feature branches? [feature/]
-
-    Creating new branch 'environment/production' based on local 'master' branch.
-
-### Creating environment branches
-
-The next thing you will want to do is create 'environment' branches that will 
-be used by each of your environments. These are long-living branches and are 
-typically setup on your puppet-master to be automatically updated whenever a 
-commit is push'd.
-(TODO.. link to more info on setting this part up on a puppet-master)
-
-    $ git flux env new development
-    $ git flux env new testing
-    $ git flux publish development
-    $ git flux publish testing
 
 ### List feature branches waiting to be merged into environment branches
 
@@ -138,10 +171,6 @@ merged into environment branches. This feature is still experimental.
 
     Unmerged feature branches for environment 'testing':
       TKT-512_adding_cool_stuff
-
-In the above example, our feature branch has been merged into the 
-development environment but has not yet been merged into
-testing or production.
 
 ### List branches
 
@@ -160,32 +189,35 @@ or with the `list` argument:
     * production
       testing
 
-### Update all local branches from remote (git-up style)
+### Switch (checkout) to a feature or environment branch
 
-git-flux has a tool that is very similar to [git-up](https://github.com/aanand/git-up),
-that provides a convenient way to update your local branches with any
-changes on the remote server.
+git-flux provides a shortcut for switching to an environment or feature
+branch without providing the full prefix. You may need to run `git flux up`
+first if the branch exists on the remote server but not locally.
 
-    $ git flux up
+    $ git flux checkout production
 
-    Updating Environment branches:
-      production   up to date
-    * development  up to date
-      testing      up to date
+Is equivalent to:
 
-    Updating Feature branches:
-      TKT-512_adding_cool_stuff   up to date
-      some_new-feature            up to date
+    $ git checkout environment/production
 
 Support
 -------
 
-TODO
+Open a new issue on github.
 
 Contributing
 ------------
 
-TODO
+Fork the repository.  Then, run:
+
+    git flow init -d
+    git flow feature start <new_feature>
+
+Then, do work and commit your changes. Publish your feature to github
+and open a pull request to your feature branch.
+
+    git flow feature publish <new_feature>
 
 License
 -------

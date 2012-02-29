@@ -1,24 +1,9 @@
 ## git-flux common functionality ##
 
-gitflux_is_initialized() {
-    gitflux_has_production_branch_configured && \
-    gitflux_has_prefixes_configured
-}
-
-gitflux_has_production_branch_configured() {
-    local prefix=$(git config --get gitflux.prefix.environment)
-    git_local_branch_exists "${prefix}production"
-}
-
-gitflux_has_prefixes_configured() {
-    git config --get gitflux.prefix.environment >/dev/null 2>&1   && \
-    git config --get gitflux.prefix.feature >/dev/null 2>&1
-}
-
 gitflux_load_settings() {
-	export FEATURE_PREFIX=$(git config --get gitflux.prefix.feature)
-	export ENVIRONMENT_PREFIX=$(git config --get gitflux.prefix.environment)
-	export PROD_BRANCH="${ENVIRONMENT_PREFIX}production"
+  export FEATURE_PREFIX="feature/"
+  export ENVIRONMENT_PREFIX="environment/"
+  export PROD_BRANCH="${ENVIRONMENT_PREFIX}production"
 }
 
 ## everything below is from gitflow-common ##

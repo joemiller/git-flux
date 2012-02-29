@@ -41,18 +41,16 @@ usage() {
 }
 
 cmd_default() {
-    cmd_up "$@"
-}
-
-cmd_up() {
     # sanity check
     require_clean_working_tree
-    
+
     # fetch remote branches
-    git fetch -q origin
+    if ! git fetch -q origin; then
+        die "Failed to fetch branches from 'origin'."
+    fi
     
-    git_up "Environment" "$ENVIRONMENT_PREFIX"
-    git_up "Feature" "$FEATURE_PREFIX"
+    git_up "Feature"        "$FEATURE_PREFIX"
+    git_up "Environment"    "$ENVIRONMENT_PREFIX"
 }
 
 git_up() {
@@ -66,10 +64,15 @@ git_up() {
     
     # save our current branch for later
     local current_branch=$(git_current_branch)
-
+    
     local remote_branches=$(git_remote_branches | sed "s@^origin/@@g" | grep "^$prefix")
     local short_names=$(echo "$remote_branches" | sed "s@^$prefix@@g")
-
+    local remote_branch_count=$(echo "$remote_branches" | wc -l)
+    
+    if [ "$remote_branch_count" -eq 0 ]; then
+        die "No remote environment branches found."
+    fi
+    
     # determine column width first
     local width=0
     local branch
@@ -85,15 +88,24 @@ git_up() {
 	local branch
 	for branch in $short_names; do
 		local fullname="${prefix}${branch}"
-		local base=$(git merge-base "$fullname" "origin/$fullname")
-		local remote_sha=$(git rev-parse "origin/$fullname")
-		local branch_sha=$(git rev-parse "$fullname")
 		if [ "$fullname" = "$current_branch" ]; then
 			printf "* "
 		else
 			printf "  "
 		fi
 		printf "%-${width}s" "$branch"
+		
+		# if branch doesn't exist locally yet ..
+		if ! git_local_branch_exists "$fullname"; then
+		    echo "creating local tracking branch.."
+		    git branch "$fullname" "origin/$fullname" >/dev/null
+		    continue
+	    fi
+	    
+	    # else, try to bring local branch in to sync with remote
+	    local base=$(git merge-base "$fullname" "origin/$fullname")
+		local remote_sha=$(git rev-parse "origin/$fullname")
+		local branch_sha=$(git rev-parse "$fullname")		
 		if [ "$branch_sha" = "$remote_sha" ]; then
 			echo "up to date"
 			continue
@@ -110,6 +122,7 @@ git_up() {
         git rebase -q "origin/$fullname" "$fullname"
 	done
     git checkout -q "$current_branch"
+    
 }
 
 cmd_help() {

@@ -39,6 +39,9 @@ gitflux_load_settings
 usage() {
     echo "usage: git flux env [list]"
     echo "       git flux env new <name>"
+    echo 
+    echo "New environment branches are always based off of the 'environment/production' branch."
+    echo
 }
 
 cmd_default() {
@@ -97,7 +100,6 @@ cmd_new() {
     echo
     echo "Summary of actions:"
 	echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
-	echo "- The branch was pushed to the remote origin server."
 	echo "- You are now on branch '$environment_branch'."
 	echo
 }

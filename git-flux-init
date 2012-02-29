@@ -34,70 +34,61 @@
 # policies, either expressed or implied, of Joe Miller.
 #
 
+gitflux_load_settings
+
 usage() {
     echo "usage: git flux init"
 }
 
 cmd_default() {
+    # is this even a git repo? if not, `git init`
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
-        die "This is not a valid git repository."
-    fi
-    
-    # TODO: new model:
-    #  static feature and environment branch prefixes. stored in gitflux-common
-    #  init - 1) check for remote environment/production branch, if exists, use it
-    #         2) check for local environment/production branch, if exists, use it and push to remote
-    #         3) ask for local branch to use as production? clone it and push to remote
-    
-    # is git-flux already initialized? if so, warn user, require -f flag
-    if gitflux_is_initialized; then
-        warn "Already initialized for git-flux. Re-initializing should be safe,"
-        warn "but if you want to cancel, hit Ctrl-C now."
-        warn
-    fi
-    echo
-    
-    # ask for prefix for environment branches
-    default_suggestion=$(git config --get gitflux.prefix.environment || echo "environment/")
-    printf "Prefix for environment branches? [$default_suggestion] "
-    read answer
-    [ "$answer" = "-" ] && prefix= || prefix=${answer:-$default_suggestion}
-    git config gitflux.prefix.environment "$prefix"
-
-    # ask for prefix for feature branches
-    default_suggestion=$(git config --get gitflux.prefix.feature || echo "feature/")
-    printf "Prefix for feature branches? [$default_suggestion] "
-    read answer
-    [ "$answer" = "-" ] && prefix= || prefix=${answer:-$default_suggestion}
-    git config gitflux.prefix.feature "$prefix"
-
-    # Setup the '$environment_prefix/production' branch.
-    #   1) If a local branch '$environment_prefix/production' exists, use it
-    #   2) If a remote branch '$environment_prefix/production' exists, create it locally and use it
-    #   3) If no local or remote branch '$environment_prefix/production' exists, create one
-    #      based off of the 'master' branch
-    local environment_prefix=$(git config gitflux.prefix.environment)
-    local prod_branch="${environment_prefix}production"
-    
-    echo
-    if git_local_branch_exists "$prod_branch"; then
-        echo "Local branch '$prod_branch' already exists, Using it for the production branch."
-    elif git_remote_branch_exists "origin/$prod_branch"; then
-        echo "Remote branch 'origin/$prod_branch' exists. Using it for the production branch."
-        git branch "$prod_branch" "origin/$prod_branch" >/dev/null 2>&1
-    elif git_local_branch_exists "master"; then
-        echo "Creating new branch '$prod_branch' based on local 'master' branch."
-        git branch "$prod_branch" master
+      git init
+      should_create_new_branch="YES"
     else
-        die "I could not find a local or remote 'master' branch. Create one then re-run 'git flux init'."
+	  require_clean_working_tree
+      should_create_new_branch='NO'
     fi
     
-    # TODO: only need to push if no remote prod branch existed?
-    echo "Pushing '$prod_branch' to remote 'origin'"
-    git push origin "$prod_branch"
-    if [ $? -gt 0 ]; then
-        die "git-flux requires a remote repository named 'origin' to be configured."
+    if git_local_branch_exists "$PROD_BRANCH"; then
+      echo "local branch '$PROD_BRANCH' already exists. 'git flux init' already run?"
+      echo
+      git checkout "$PROD_BRANCH"
+      exit 0
     fi
+
+    if git_remote_branch_exists "origin/$PROD_BRANCH"; then
+      echo "Remote branch 'origin/$PROD_BRANCH' already exists, but local branch does not."
+      echo "Run 'git flux up' to pull down remote branches."
+      echo
+      exit 0
+    fi
+    
+    # TODO: allow user to select existing branch instead?
+    if git_local_branch_exists "master"; then
+        echo "No branch named '$PROD_BRANCH' found, creating one based off 'master'."
+        git branch --no-track "$PROD_BRANCH" "master"
+    fi
+    
+    if [ "$should_create_new_branch" = "YES" ]; then
+      git symbolic-ref HEAD "refs/heads/$PROD_BRANCH"
+      git commit --allow-empty --quiet -m'initial commit'
+      created_new_branch=1
+    fi
+    
+    git checkout -q "$PROD_BRANCH"
+    
+    echo
+    echo "Summary of actions:"
+    echo "    - Created environment branch: '$PROD_BRANCH'"
+    echo "    - You are now on branch '$PROD_BRANCH'"
+    echo
+    echo "Next steps:"
+    echo "    - Create more environment branches with 'git flux env new <environment_name>"
+    echo "    - Setup a remote repository named 'origin'."
+    echo "    - Publish your environment branches to remote with 'git flux publish <environment_name>'"
+    echo
+    
 }
 
 cmd_help() {
