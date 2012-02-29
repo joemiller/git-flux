@@ -1,0 +1,110 @@
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
+gitflux_load_settings
+
+usage() {
+    echo "usage: git flux env [list]"
+    echo "       git flux env new <name>"
+    echo 
+    echo "New environment branches are always based off of the 'environment/production' branch."
+    echo
+}
+
+cmd_default() {
+    cmd_list "$@"
+}
+
+cmd_list() {
+    local environment_branches
+    local short_names
+    local current_branch
+
+    environment_branches=$(echo "$(git_local_branches)" | grep "^$ENVIRONMENT_PREFIX")
+    if [ -z "$environment_branches" ]; then
+        warn "No environment branches exist."
+        warn 
+        warn "You can create a new environment branch:"
+        warn
+        warn "    git flux env new <name>"
+        warn
+        exit 0
+    fi
+    short_names=$(echo "$environment_branches" | sed "s@^$ENVIRONMENT_PREFIX@@g")
+
+    current_branch=$(git_current_branch)
+
+	local branch
+	for branch in $short_names; do
+		local fullname="${ENVIRONMENT_PREFIX}${branch}"
+		if [ "$fullname" = "$current_branch" ]; then
+			printf "* "
+		else
+			printf "  "
+		fi
+		echo "$branch"
+	done
+}
+
+cmd_new() {
+    local environment_name="$1"; shift
+    
+    if [ -z "$environment_name" ]; then
+        die "Must specify an environment branch name"
+    fi
+    local environment_branch="${ENVIRONMENT_PREFIX}${environment_name}"
+
+    require_branch_absent "$environment_branch"
+    
+    if git_branch_exists "origin/$PROD_BRANCH"; then
+        require_branches_equal "$PROD_BRANCH" "origin/$PROD_BRANCH"
+    fi
+    
+    if ! git checkout -b "$environment_branch" "$PROD_BRANCH"; then
+        die "Could not create environment branch '$environment_branch'"
+    fi
+
+    echo
+    echo "Summary of actions:"
+	echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
+	echo "- You are now on branch '$environment_branch'."
+	echo
+}
+
+cmd_help() {
+    usage
+    exit 0
+}

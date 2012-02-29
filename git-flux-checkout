@@ -1,0 +1,80 @@
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
+gitflux_load_settings
+
+usage() {
+    echo "usage: git flux checkout <name>"
+    echo
+    echo "- <name> may be an environment branch or feature branch without the prefix."
+    echo
+}
+
+cmd_default() {
+    cmd_checkout "$@"
+}
+
+cmd_checkout() {
+    local branch_name="$1"; shift
+    if [ "$branch_name" = "help" ]; then
+        cmd_help
+    fi
+
+    if [ -z "$branch_name" ]; then
+        die "No branch name specified. Run 'git flux checkout help' for help"
+    fi
+    
+    # try to find a valid branch
+    local env_branch="${ENVIRONMENT_PREFIX}${branch_name}"
+    local feature_branch="${FEATURE_PREFIX}${branch_name}"
+    for branch in "$feature_branch" "$env_branch" ; do
+        if git_local_branch_exists "$branch"; then
+            branch_name=$branch
+            break
+        fi
+    done
+
+    # sanity checks
+    require_clean_working_tree
+    require_branch "$branch_name"
+        
+    git checkout "$branch_name"
+}
+
+cmd_help() {
+    usage
+    exit 0
+}

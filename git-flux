@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
+if [ "$DEBUG" = "yes" ]; then
+	set -x
+fi
+
+usage() {
+    echo "usage: git flux <subcommand> [options]"
+    echo
+    echo "Available subcommands:"
+    echo "   init     Initialize a new git repo with support for git-flux branching model."
+    echo "   env      Manage your environment branches."
+    echo "   feature  Manage your feature branches."
+    echo "   publish  Publish (push) a feature or environment branch to remote."
+    echo "   checkout Switch to a feature or environment branch."
+    echo "   up       Update local branches from remote."
+    echo
+    echo "Try 'git flux <subcommand> help' for details."
+}
+
+main() {
+    git_flux_dir=$(dirname $0)
+    
+    # load common helpers
+    . "$git_flux_dir/gitflux-common"
+    
+    command="$1"; shift
+
+    if [ ! -e "$git_flux_dir/git-flux-$command" ]; then
+		usage
+		exit 1
+	fi
+    
+    # load command and run it
+    . "$git_flux_dir/git-flux-$command"
+    
+    # special case for git-flux-publish and -checkout: always call cmd_default
+    # i am a little embarrassed by the ugliness :(
+    
+    case $command in
+        "publish")
+            cmd_default "$@"
+            ;;
+        "checkout")
+            cmd_default "$@"
+            ;;
+        *)
+            subcommand="default"
+            if [ "$1" != "" ] && { ! echo "$1" | grep -q "^-"; } then
+                subcommand="$1"; shift
+            fi
+            if ! type "cmd_$subcommand" >/dev/null 2>&1; then
+                warn "Unknown subcommand: '$subcommand'"
+                usage
+                exit 1
+            fi
+            cmd_$subcommand "$@"
+            ;;
+    esac
+}
+
+main "$@"

@@ -1,0 +1,102 @@
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
+gitflux_load_settings
+
+usage() {
+    echo "usage: git flux init"
+}
+
+cmd_default() {
+    # is this even a git repo? if not, `git init`
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      git init
+      should_create_new_branch="YES"
+    else
+	  require_clean_working_tree
+      should_create_new_branch='NO'
+    fi
+    
+    if git_local_branch_exists "$PROD_BRANCH"; then
+      echo "local branch '$PROD_BRANCH' already exists. 'git flux init' already run?"
+      echo
+      git checkout "$PROD_BRANCH"
+      exit 0
+    fi
+
+    if git_remote_branch_exists "origin/$PROD_BRANCH"; then
+      echo "Remote branch 'origin/$PROD_BRANCH' already exists, but local branch does not."
+      echo "Run 'git flux up' to pull down remote branches."
+      echo
+      exit 0
+    fi
+
+    # select and existing branch to use
+    echo "List of branches:"
+    git_local_branches | sed 's/^.*$/   - &/g'
+    printf "Which branch should be used to create the $PROD_BRANCH branch? "
+    read answer
+    if git_local_branch_exists "$answer"; then
+       if ! git branch --no-track "$PROD_BRANCH" "$answer"; then
+           die "Error creating '$PROD_BRANCH' from '$answer'"
+       fi
+    fi
+    
+    if [ "$should_create_new_branch" = "YES" ]; then
+      git symbolic-ref HEAD "refs/heads/$PROD_BRANCH"
+      git commit --allow-empty --quiet -m'initial commit'
+      created_new_branch=1
+    fi
+    
+    git checkout -q "$PROD_BRANCH"
+    
+    echo
+    echo "Summary of actions:"
+    echo "    - Created environment branch: '$PROD_BRANCH'"
+    echo "    - You are now on branch '$PROD_BRANCH'"
+    echo
+    echo "Next steps:"
+    echo "    - Create more environment branches with 'git flux env new <environment_name>"
+    echo "    - Setup a remote repository named 'origin'."
+    echo "    - Publish your environment branches to remote with 'git flux publish <environment_name>'"
+    echo
+    
+}
+
+cmd_help() {
+    usage
+    exit 0
+}

@@ -1,0 +1,131 @@
+#
+# git-flux -- A collection of git tools to help with workflows
+# often associated with "infrastructure as code" or configuration
+# management.
+#
+# Feel free to contribute to this project at:
+#    http://github.com/joemiller/git-flux
+#
+# Copyright 2012 Joe Miller. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#    1. Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+# 
+#    2. Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY JOE MILLER ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL JOE MILLER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# The views and conclusions contained in the software and documentation are
+# those of the authors and should not be interpreted as representing official
+# policies, either expressed or implied, of Joe Miller.
+#
+
+gitflux_load_settings
+
+usage() {
+    echo "usage: git flux up"
+}
+
+cmd_default() {
+    # sanity check
+    require_clean_working_tree
+
+    # fetch remote branches
+    if ! git fetch -q origin; then
+        die "Failed to fetch branches from 'origin'."
+    fi
+    
+    git_up "Feature"        "$FEATURE_PREFIX"
+    git_up "Environment"    "$ENVIRONMENT_PREFIX"
+}
+
+git_up() {
+    local branch_type="$1"; shift
+    local prefix="$1"; shift
+    
+    # sanity
+    if [ -z "$branch_type" ] || [ -z "$prefix" ]; then
+        die "git_up: must specify branch-type and prefix"
+    fi
+    
+    # save our current branch for later
+    local current_branch=$(git_current_branch)
+    
+    local remote_branches=$(git_remote_branches | sed "s@^origin/@@g" | grep "^$prefix")
+    local short_names=$(echo "$remote_branches" | sed "s@^$prefix@@g")
+    local remote_branch_count=$(echo "$remote_branches" | wc -l)
+    
+    if [ "$remote_branch_count" -eq 0 ]; then
+        die "No remote environment branches found."
+    fi
+    
+    # determine column width first
+    local width=0
+    local branch
+    for branch in $short_names; do
+      local len=${#branch}
+      width=$(max $width $len)
+    done
+    
+    width=$(($width+3))
+    
+    echo 
+    echo "Updating $branch_type branches:"
+	local branch
+	for branch in $short_names; do
+		local fullname="${prefix}${branch}"
+		if [ "$fullname" = "$current_branch" ]; then
+			printf "* "
+		else
+			printf "  "
+		fi
+		printf "%-${width}s" "$branch"
+		
+		# if branch doesn't exist locally yet ..
+		if ! git_local_branch_exists "$fullname"; then
+		    echo "creating local tracking branch.."
+		    git branch "$fullname" "origin/$fullname" >/dev/null
+		    continue
+	    fi
+	    
+	    # else, try to bring local branch in to sync with remote
+	    local base=$(git merge-base "$fullname" "origin/$fullname")
+		local remote_sha=$(git rev-parse "origin/$fullname")
+		local branch_sha=$(git rev-parse "$fullname")		
+		if [ "$branch_sha" = "$remote_sha" ]; then
+			echo "up to date"
+			continue
+		fi
+		if [ "$base" = "$remote_sha" ]; then
+		    echo "ahead of upstream"
+		    continue
+        fi
+	    if [ "$base" = "$branch_sha" ]; then
+	        echo "fast-forwarding..."
+        else
+            echo "rebasing..."
+        fi
+        git rebase -q "origin/$fullname" "$fullname"
+	done
+    git checkout -q "$current_branch"
+    
+}
+
+cmd_help() {
+    usage
+    exit 0
+}
