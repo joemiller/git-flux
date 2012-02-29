@@ -4,17 +4,19 @@ git-flux - A git branching model for Infrastructure as code workflows
 Overview
 ---------
 
-_What?_ git-flux is a set of custom git commands based heavily on 
-[git-flow](https://github.com/nvie/gitflow) but tailored to managing the 
-workflow of a configuration management system such as Puppet or Chef.
+_What?_ git-flux is a set of custom git commands implementing a workflow
+tailored to managing "infrastructure as code", or configuration management
+systems, such as Puppet or Chef and based heavily on [git-flow](https://github.com/nvie/gitflow).
 
 It is intended to be used in conjunction with a setup similar to that described
 in [this blog article from puppetlabs](http://puppetlabs.com/blog/git-workflow-and-puppet-environments/)
 where multiple, permanent, branches are aligned to different environments. 
-For example, you may have a puppet.git repository with 'development', 
-'testing', and 'production' branches corresponding to these environments in 
-your  infrastructure. This tool helps you safely control the movement of
-changes through each environment as testing or sign-off is completed.
+
+For example you may have a puppet.git repository with long-living branches 
+like 'development', 'testing', and 'production' branches corresponding to
+these environments in your  infrastructure. This tool helps you safely
+control the movement of changes through each environment as testing or
+sign-off is completed.
 
 _Why not use git-flow?_ Originally we wanted to but as we started discussing
 what the workflow would look like we realized it was not a good fit for this
@@ -40,7 +42,8 @@ are short-lived branches that are created for making changes to the codebase.
 Environment branches are long-lived branches that correspond to a live
 deployment. Feature branches are merged into environment branches.
 
-See the `Typical Workflow` section below for more details.
+See the `Typical Workflow` section below for more details on how changes move
+through the workflow.
 
 Installation
 ------------
@@ -59,7 +62,7 @@ Getting started
 ### Preparing a repo (one-time task)
 
 Prepare a repository for git flux by running `git flux init` which will 
-create the all important environment branch production. This branch is
+create the all important `production` environment branch. This branch is
 used to create all other environment and feature branches. It only needs
 to be run once.
 
