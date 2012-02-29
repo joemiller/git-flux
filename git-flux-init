@@ -63,11 +63,16 @@ cmd_default() {
       echo
       exit 0
     fi
-    
-    # TODO: allow user to select existing branch instead?
-    if git_local_branch_exists "master"; then
-        echo "No branch named '$PROD_BRANCH' found, creating one based off 'master'."
-        git branch --no-track "$PROD_BRANCH" "master"
+
+    # select and existing branch to use
+    echo "List of branches:"
+    git_local_branches | sed 's/^.*$/   - &/g'
+    printf "Which branch should be used to create the $PROD_BRANCH branch? "
+    read answer
+    if git_local_branch_exists "$answer"; then
+       if ! git branch --no-track "$PROD_BRANCH" "$answer"; then
+           die "Error creating '$PROD_BRANCH' from '$answer'"
+       fi
     fi
     
     if [ "$should_create_new_branch" = "YES" ]; then

@@ -45,7 +45,13 @@ See the `Typical Workflow` section below for more details.
 Installation
 ------------
 
-TODO
+    $ git clone git://github.com/joemiller/git-flux.git
+    $ cd git-flux
+    $ sh install.sh install
+    
+To uninstall:
+
+    $ sh install.sh uninstall
 
 Getting started
 ---------------
