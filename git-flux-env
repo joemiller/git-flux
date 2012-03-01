@@ -67,16 +67,16 @@ cmd_list() {
 
     current_branch=$(git_current_branch)
 
-	local branch
-	for branch in $short_names; do
-		local fullname="${ENVIRONMENT_PREFIX}${branch}"
-		if [ "$fullname" = "$current_branch" ]; then
-			printf "* "
-		else
-			printf "  "
-		fi
-		echo "$branch"
-	done
+    local branch
+    for branch in $short_names; do
+        local fullname="${ENVIRONMENT_PREFIX}${branch}"
+        if [ "$fullname" = "$current_branch" ]; then
+            printf "* "
+        else
+            printf "  "
+        fi
+        echo "$branch"
+    done
 }
 
 cmd_new() {
@@ -99,9 +99,9 @@ cmd_new() {
 
     echo
     echo "Summary of actions:"
-	echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
-	echo "- You are now on branch '$environment_branch'."
-	echo
+    echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
+    echo "- You are now on branch '$environment_branch'."
+    echo
 }
 
 cmd_help() {

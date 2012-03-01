@@ -36,7 +36,7 @@
 #
 
 if [ "$DEBUG" = "yes" ]; then
-	set -x
+    set -x
 fi
 
 usage() {
@@ -49,6 +49,7 @@ usage() {
     echo "   publish  Publish (push) a feature or environment branch to remote."
     echo "   checkout Switch to a feature or environment branch."
     echo "   up       Update local branches from remote."
+    echo "   version  Show git-flux version."
     echo
     echo "Try 'git flux <subcommand> help' for details."
 }
@@ -62,14 +63,14 @@ main() {
     command="$1"; shift
 
     if [ ! -e "$git_flux_dir/git-flux-$command" ]; then
-		usage
-		exit 1
-	fi
+        usage
+        exit 1
+    fi
     
     # load command and run it
     . "$git_flux_dir/git-flux-$command"
     
-    # special case for git-flux-publish and -checkout: always call cmd_default
+    # special cases for git-flux-publish and -checkout: always call cmd_default
     # i am a little embarrassed by the ugliness :(
     
     case $command in
