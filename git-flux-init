@@ -46,7 +46,7 @@ cmd_default() {
       git init
       should_create_new_branch="YES"
     else
-	  require_clean_working_tree
+      require_clean_working_tree
       should_create_new_branch='NO'
     fi
     

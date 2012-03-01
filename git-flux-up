@@ -85,42 +85,42 @@ git_up() {
     
     echo 
     echo "Updating $branch_type branches:"
-	local branch
-	for branch in $short_names; do
-		local fullname="${prefix}${branch}"
-		if [ "$fullname" = "$current_branch" ]; then
-			printf "* "
-		else
-			printf "  "
-		fi
-		printf "%-${width}s" "$branch"
-		
-		# if branch doesn't exist locally yet ..
-		if ! git_local_branch_exists "$fullname"; then
-		    echo "creating local tracking branch.."
-		    git branch "$fullname" "origin/$fullname" >/dev/null
-		    continue
-	    fi
-	    
-	    # else, try to bring local branch in to sync with remote
-	    local base=$(git merge-base "$fullname" "origin/$fullname")
-		local remote_sha=$(git rev-parse "origin/$fullname")
-		local branch_sha=$(git rev-parse "$fullname")		
-		if [ "$branch_sha" = "$remote_sha" ]; then
-			echo "up to date"
-			continue
-		fi
-		if [ "$base" = "$remote_sha" ]; then
-		    echo "ahead of upstream"
-		    continue
+    local branch
+    for branch in $short_names; do
+        local fullname="${prefix}${branch}"
+        if [ "$fullname" = "$current_branch" ]; then
+            printf "* "
+        else
+            printf "  "
         fi
-	    if [ "$base" = "$branch_sha" ]; then
-	        echo "fast-forwarding..."
+        printf "%-${width}s" "$branch"
+        
+        # if branch doesn't exist locally yet ..
+        if ! git_local_branch_exists "$fullname"; then
+            echo "creating local tracking branch.."
+            git branch "$fullname" "origin/$fullname" >/dev/null
+            continue
+        fi
+        
+        # else, try to bring local branch in to sync with remote
+        local base=$(git merge-base "$fullname" "origin/$fullname")
+        local remote_sha=$(git rev-parse "origin/$fullname")
+        local branch_sha=$(git rev-parse "$fullname")       
+        if [ "$branch_sha" = "$remote_sha" ]; then
+            echo "up to date"
+            continue
+        fi
+        if [ "$base" = "$remote_sha" ]; then
+            echo "ahead of upstream"
+            continue
+        fi
+        if [ "$base" = "$branch_sha" ]; then
+            echo "fast-forwarding..."
         else
             echo "rebasing..."
         fi
         git rebase -q "origin/$fullname" "$fullname"
-	done
+    done
     git checkout -q "$current_branch"
     
 }

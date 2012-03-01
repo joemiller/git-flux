@@ -36,7 +36,7 @@
 #
 
 if [ "$DEBUG" = "yes" ]; then
-	set -x
+    set -x
 fi
 
 usage() {
@@ -62,9 +62,9 @@ main() {
     command="$1"; shift
 
     if [ ! -e "$git_flux_dir/git-flux-$command" ]; then
-		usage
-		exit 1
-	fi
+        usage
+        exit 1
+    fi
     
     # load command and run it
     . "$git_flux_dir/git-flux-$command"
