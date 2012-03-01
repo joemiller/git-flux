@@ -6,7 +6,8 @@ WHEREAMI=$(dirname $0)
 
 EXEC_FILES="git-flux"
 SRC_FILES="git-flux-checkout git-flux-env git-flux-feature \
-git-flux-init git-flux-publish git-flux-up gitflux-common"
+git-flux-init git-flux-publish git-flux-up git-flux-version \
+gitflux-common"
 
 case "$1" in
     install)
