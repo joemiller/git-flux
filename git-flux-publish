@@ -83,8 +83,7 @@ cmd_publish() {
     
     echo
     echo "Summary of actions:"
-    echo " - Pushed local branch '$branch_name' to remote origin server."
-    echo " - The local branch '$branch_name' was configured to track the remote branch"
+    echo " - Pushed local branch '$branch_name' to remote origin."
     echo " - You are now on branch '$branch_name'"
     echo
 }
