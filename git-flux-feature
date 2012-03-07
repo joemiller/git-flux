@@ -166,8 +166,10 @@ cmd_merge() {
     echo
     echo "Summary of actions:"
     echo "- Feature branch '$feature_name' was merged into environment '$environment_name'"
-    echo "- You may want to push this branch to the remote origin now. 'git push'"
     echo "- You are now on branch '$environment_branch'"
+    echo
+    echo "Next Steps:"
+    echo "- Publish the environment branch to the remote origin: 'git flux publish $environment_name'"
     echo
 }
 
@@ -191,9 +193,6 @@ cmd_status() {
         done
         echo
     done
-    echo "-------------------"
-    echo "To merge a feature branch into an environment branch:"
-    echo "    git flux feature merge <name> <environment>"
 }
 
 cmd_help() {
