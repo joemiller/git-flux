@@ -100,6 +100,7 @@ cmd_new() {
     echo
     echo "Summary of actions:"
     echo "- A new environment branch '$environment_name' was created, based on '$PROD_BRANCH'."
+    echo
     echo "- You are now on branch '$environment_branch'."
     echo
 }
