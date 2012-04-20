@@ -102,14 +102,15 @@ cmd_new() {
     echo
     echo "Summary of actions:"
     echo "- A new feature branch '$feature_name' was created, based on '$PROD_BRANCH'"
-    echo "- You are now on branch '$feature_branch'"
-    echo ""
-    echo "Now, start committing on your feature. When done, use:"
-    echo ""
+    echo 
+    echo "Now, start committing on your feature. When done, use the following"
+    echo "to merge the feature into an environment branch:"
+    echo 
     echo "     git flux feature merge '$feature_name' <environment_branch>"
     echo 
-    echo "To merge this feature into an environment branch."
+    echo "- You are now on branch '$feature_branch'"
     echo
+
 }
 
 cmd_merge() {
@@ -152,6 +153,10 @@ cmd_merge() {
         git merge --no-ff "$feature_branch"
     fi
 
+    # switch back to feature branch. no reason to be on the environment branch
+    # because you shouldn't ever commit directly to it.
+    git checkout "$feature_branch"
+
     if [ $? -ne 0 ]; then
         warn
         warn "There were merge conflicts. To resolve the merge conflict manually, use:"
@@ -162,14 +167,15 @@ cmd_merge() {
         warn
         exit 1
     fi
-    
+
     echo
     echo "Summary of actions:"
     echo "- Feature branch '$feature_name' was merged into environment '$environment_name'"
-    echo "- You are now on branch '$environment_branch'"
     echo
     echo "Next Steps:"
     echo "- Publish the environment branch to the remote origin: 'git flux publish $environment_name'"
+    echo
+    echo "You are now on branch '$feature_branch'"
     echo
 }
 
