@@ -5,6 +5,6 @@ x small change: in 'git flux publish' output, drop prefix from first 2 bullets o
 - might need a `git flux feature clean` to remove any local feature branches that are no longer on the remote.
 
 - allow multiple environments on `git flux feature merge FEATURE [env, env, env, ...]`
-- allow multiple feature or env branches on `git flux publish ..`
+- allow multiple feature or env branches on `git flux publish ..` (probably eliminate publish and recommend using `git push` instead)
 x after `git flux feature merge`, switch back to current branch instead of the merged environment branch
 x update 'contributing' section of readme to say that git-flow should be installed
