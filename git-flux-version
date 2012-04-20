@@ -34,7 +34,7 @@
 # policies, either expressed or implied, of Joe Miller.
 #
 
-GITFLUX_VERSION=0.1.3
+GITFLUX_VERSION=0.1.4
 
 usage() {
 	echo "usage: git flux version"
