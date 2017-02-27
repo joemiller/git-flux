@@ -132,7 +132,7 @@ for changes might look like this:
 3. Merge the feature branch into the `development` environment branch.
 4. Test the changes, repeat steps 2 and 3 if necessary.
 5. Merge the feature branch into the `testing` environment branch.
-6. Do moar testing.
+6. Do more testing.
 7. Merge the feature branch into the `production` environment branch.
 8. Done.
 
